@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quem não te segue de volta</title>
+<link rel="stylesheet" href="/static/style.css">
+<script>
+  // aplica o tema salvo antes de pintar, para não piscar
+  try {
+    var t = localStorage.getItem("iglists:tema");
+    if (t) document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+</head>
+<body data-view="welcome" data-drawer="">
+
+<header>
+  <button class="brand" id="brand" title="Voltar ao resumo"><span class="dot"></span> ig-lists</button>
+  <div class="head-r">
+    <span id="who" class="who hidden"></span>
+    <div class="theme" role="group" aria-label="Tema">
+      <button data-theme-set="" aria-pressed="false" title="Automático">Auto</button>
+      <button data-theme-set="light" aria-pressed="false" title="Claro">Claro</button>
+      <button data-theme-set="dark" aria-pressed="false" title="Escuro">Escuro</button>
+    </div>
+    <button class="icon-btn" id="open-safety" title="Como isso é seguro?" aria-label="Como isso é seguro?">?</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ══════════════════════════════ 0 · BOAS-VINDAS ══════════════════════ -->
+  <section class="view view-welcome">
+    <div class="narrow centered">
+      <div style="width:100%">
+        <h1 class="title">Quem não te segue de volta</h1>
+        <p class="lead">O app abre a sua própria lista de seguidores, cruza com a de quem
+          você segue e mostra a diferença. Roda inteiro no seu computador.</p>
+
+        <div class="banner">Aquela janela preta que abriu junto é o motor do app.
+          Deixe ela aberta e ignore — para desligar tudo depois, é só fechá-la.</div>
+
+        <ul class="trust">
+          <li>{{check}}<div><b>Não existe servidor nosso.</b><span>O programa roda na sua
+            máquina, no endereço 127.0.0.1 — que quer dizer literalmente "aqui".</span></div></li>
+          <li>{{check}}<div><b>Sua entrada no Instagram fica só na memória.</b><span>Enquanto
+            o app está aberto. Fechou, sumiu — nunca é gravada em arquivo.</span></div></li>
+          <li>{{check}}<div><b>Nenhum site que você abrir alcança o app.</b><span>Só esta
+            página e a extensão oficial conseguem conversar com ele.</span></div></li>
+        </ul>
+
+        <button class="btn primary" id="go-connect">Começar</button>
+        <div class="center" style="margin-top:14px">
+          <button class="linkish" id="welcome-safety">Como isso é seguro?</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ 1 · CONECTAR ═════════════════════════ -->
+  <section class="view view-connect">
+    <div class="narrow">
+      <div class="card">
+        <div class="eyebrow">Passo 1 de 3</div>
+        <h2 class="title">Vamos entrar na sua conta</h2>
+        <p class="lead">O app aproveita a sessão que já está aberta no seu navegador.
+          Você não digita a senha do Instagram em lugar nenhum.</p>
+
+        <div id="primary-connect" class="stack"></div>
+
+        <details id="other-browsers">
+          <summary>Uso outro navegador</summary>
+          <div id="browsers" class="stack"><span class="note">procurando navegadores…</span></div>
+        </details>
+
+        <details id="fallbacks">
+          <summary>Nenhum desses funciona</summary>
+
+          <div style="padding:8px 0 4px">
+            <b style="font-size:15px">Extensão do Chrome</b>
+            <p class="note" style="margin:4px 0 10px">Um clique depois de instalada. Instale uma vez:</p>
+            <ol class="steps">
+              <li><div>Abra <code>chrome://extensions</code>
+                <div class="copybar"><code>chrome://extensions</code>
+                  <button class="btn sm" data-copy="chrome://extensions">Copiar</button></div></div></li>
+              <li>Ligue o <b>Modo do desenvolvedor</b>, no canto de cima à direita.</li>
+              <li>Clique em <b>Carregar sem compactação</b>.</li>
+              <li><div>Escolha esta pasta:
+                <div class="copybar"><code id="extpath">…</code>
+                  <button class="btn sm" id="copy-extpath">Copiar</button></div></div></li>
+            </ol>
+            <div class="pulse" id="ext-waiting">esperando a extensão…</div>
+          </div>
+
+          <div style="padding:14px 0 4px; border-top:1px solid var(--line); margin-top:8px">
+            <b style="font-size:15px">Colar o código na mão</b>
+            <span class="note"> — o jeito difícil</span>
+            <p class="note" style="margin:6px 0 8px">No navegador logado: <kbd>F12</kbd> →
+              aba <b>Network</b> → recarregue → clique em qualquer linha de
+              <code>instagram.com</code> → <b>Headers</b> → <i>Request Headers</i> →
+              linha <code>cookie</code> → botão direito → <b>Copy value</b>.</p>
+            <textarea id="cookie" rows="3" spellcheck="false"
+              placeholder="sessionid=…; csrftoken=…; ds_user_id=…"></textarea>
+            <label class="field" for="username">Se pedir, seu @ do Instagram (opcional)</label>
+            <input id="username" type="text" placeholder="@voce" autocomplete="off">
+            <div class="row" style="margin-top:12px">
+              <button class="btn primary" id="paste-connect" style="width:auto">Conectar</button>
+              <span id="paste-msg" class="note"></span>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ 2 · KEYCHAIN ═════════════════════════ -->
+  <section class="view view-keychain">
+    <div class="narrow">
+      <div class="card center">
+        <h2 class="title">O Mac está pedindo sua senha agora</h2>
+        <p class="lead">Apareceu uma janelinha do sistema. Ela pode estar escondida atrás desta.</p>
+        <p class="muted small">Ela pergunta se o ig-lists pode ler a chave
+          <code>Chrome Safe Storage</code> — o cofre onde o Chrome guarda os cookies dele.</p>
+
+        <div class="ring" id="kc-ring" style="position:relative">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="8"/>
+            <circle class="fill" id="kc-arc" cx="60" cy="60" r="52" fill="none" stroke-width="8"
+              stroke-dasharray="326.7" stroke-dashoffset="0"/>
+          </svg>
+          <span class="count" id="kc-count">60s</span>
+        </div>
+
+        <p class="note" id="kc-hint">Digite a senha do seu computador e clique em
+          <b>Sempre Permitir</b>.</p>
+        <p class="note" style="margin-top:14px">A senha vai para o macOS, não para o app.
+          O ig-lists nunca chega a vê-la.</p>
+        <button class="linkish" id="kc-cancel" style="margin-top:8px">Cancelar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ 3 · CONFIRMAR ════════════════════════ -->
+  <section class="view view-confirm">
+    <div class="narrow">
+      <div class="card">
+        <div class="eyebrow">Passo 2 de 3</div>
+        <h2 class="title">Conectado. É essa a sua conta?</h2>
+
+        <div class="row" style="gap:14px; margin:18px 0">
+          <div class="mono s56" id="cf-mono"></div>
+          <div><div class="review-at" id="cf-user"></div>
+            <div class="review-nm" id="cf-name"></div></div>
+        </div>
+
+        <div class="row" style="justify-content:space-around; border-top:1px solid var(--line);
+          border-bottom:1px solid var(--line); padding:16px 0; margin:8px 0 16px; text-align:center">
+          <div><div class="big-num" style="font-size:34px" id="cf-ers">0</div>
+            <div class="note">seguidores</div></div>
+          <div><div class="big-num" style="font-size:34px" id="cf-ing">0</div>
+            <div class="note">seguindo</div></div>
+        </div>
+
+        <div class="banner" id="cf-eta">Calculando o tempo…</div>
+
+        <button class="btn primary" id="cf-go">Buscar minhas listas</button>
+        <div class="stack center" style="margin-top:12px">
+          <button class="linkish" id="cf-switch">Não é essa conta — trocar</button>
+        </div>
+
+        <details id="cf-advanced">
+          <summary>Ajustes avançados</summary>
+          <label class="field">Quantas conferidas na lista de quem você segue
+            <select id="opt-passes">
+              <option value="1">1 — rápido</option>
+              <option value="3" selected>3 — recomendado</option>
+              <option value="5">5 — máximo</option>
+            </select></label>
+          <label class="field">Velocidade
+            <select id="opt-delay">
+              <option value="1.5">rápido (1,5s)</option>
+              <option value="2.5" selected>equilibrado (2,5s)</option>
+              <option value="5">devagar (5s)</option>
+            </select></label>
+          <label class="row" style="margin-top:12px; gap:8px">
+            <input type="checkbox" id="opt-test" style="width:auto"> Só testar: para nas 2 primeiras páginas</label>
+          <div class="row" style="margin-top:10px">
+            <button class="linkish" data-only="followers">buscar só seguidores</button>
+            <button class="linkish" data-only="following">buscar só seguindo</button>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ 4/5 · COLETANDO / PAUSA ═════════════════ -->
+  <section class="view view-collecting">
+    <div class="narrow">
+      <div class="card center" id="collect-card">
+        <div class="eyebrow" id="col-step">Etapa 1 de 2</div>
+        <h2 class="title" id="col-title">Lendo quem te segue…</h2>
+
+        <div class="big-num" id="col-num">0</div>
+        <div class="big-sub" id="col-numsub">pessoas encontradas</div>
+
+        <div class="segbar" id="col-bar"></div>
+        <div class="eta" id="col-eta">estimando…</div>
+
+        <div id="col-pause" class="hidden">
+          <div class="countdown" id="col-countdown">0:00</div>
+          <p class="note center" id="col-pausenote"></p>
+        </div>
+
+        <p class="banner" id="col-warnbox" style="margin-top:20px">Deixe esta aba aberta.
+          Se fechar, a coleta para e o que já veio se perde.</p>
+
+        <div class="row" style="justify-content:center; gap:16px; margin-top:6px">
+          <button class="linkish" id="col-details">ver detalhes técnicos</button>
+          <button class="linkish" id="col-stop">parar</button>
+        </div>
+        <pre class="log hidden" id="col-log"></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ 6 · REVELAÇÃO ════════════════════════ -->
+  <section class="view view-reveal">
+    <div class="narrow wide">
+      <div class="reveal-top">
+        <span id="rv-fresh"></span>
+        <button class="btn sm" id="rv-refresh">Atualizar</button>
+      </div>
+
+      <div class="hero" id="rv-hero"></div>
+
+      <div class="mini-card" id="rv-mini"></div>
+
+      <p class="center muted small" id="rv-mutual"></p>
+
+      <div class="row" style="justify-content:center; margin-top:22px; gap:10px">
+        <button class="btn primary" id="rv-lists" style="width:auto">Ver todas as listas</button>
+        <button class="btn" id="rv-share">Cartão para compartilhar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ 7 · PLACAR + LISTA ═══════════════════ -->
+  <section class="view view-list">
+    <div class="work">
+      <aside class="rail">
+        <div class="crossbar" id="crossbar"></div>
+        <div class="crosskey" id="crosskey"></div>
+        <div id="scorecards" class="stack"></div>
+        <div class="foot" id="rail-foot"></div>
+      </aside>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="lp-title">Seguidores</h2>
+          <span class="cnt" id="lp-count"></span>
+          <span class="spacer"></span>
+          <input type="search" id="lp-search" placeholder="buscar por @ ou nome…">
+          <select id="lp-sort">
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+            <option value="verified">Verificados primeiro</option>
+            <option value="named">Com nome primeiro</option>
+          </select>
+          <div class="menu">
+            <button class="btn sm" id="lp-export">Exportar</button>
+            <div class="menu-pop hidden" id="lp-exportmenu"></div>
+          </div>
+          <button class="btn sm" id="lp-review" style="display:none">Revisar um por um</button>
+        </div>
+        <div class="alsopill hidden" id="lp-also"></div>
+        <div class="people" id="lp-people"></div>
+        <div class="more hidden" id="lp-more"><button class="btn" id="lp-morebtn">mostrar mais 200</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ FALHA ════════════════════════════════ -->
+  <section class="view view-fail">
+    <div class="narrow">
+      <div class="card center">
+        <div class="fail-glyph">✕</div>
+        <h2 class="title" id="fail-title" style="margin-top:10px">Algo deu errado</h2>
+        <p class="lead" id="fail-cause"></p>
+        <div id="fail-extra"></div>
+        <button class="btn primary" id="fail-action" style="width:auto">Tentar de novo</button>
+        <div class="center" style="margin-top:12px">
+          <button class="linkish" id="fail-back">Voltar ao início</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="quitbar">Terminou? <button class="linkish" id="quit">Fechar o ig-lists</button></div>
+
+<!-- ═══════════════════════════════ GAVETAS ════════════════════════════════ -->
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer drawer-safety" aria-label="Como isso é seguro">
+  <button class="icon-btn x" data-close-drawer>✕</button>
+  <h2>Como isso é seguro?</h2>
+  <p class="note">Cada afirmação abaixo corresponde a uma parte real do programa.</p>
+  <div id="safety-items"></div>
+  <div class="danger">
+    <button class="btn block" id="sf-logout">Desconectar e esquecer a sessão</button>
+    <span class="note">Suas listas continuam salvas.</span>
+    <button class="btn block" id="sf-reset">Apagar as listas do computador</button>
+    <span class="note">Sua conta do Instagram não é afetada.</span>
+  </div>
+  <p class="note" style="margin-top:16px">Se der arrependimento, dá para cortar tudo pelo
+    Instagram: Configurações → Central de Contas → Senha e segurança → Onde você entrou.</p>
+</aside>
+
+<aside class="drawer drawer-review" aria-label="Revisar um por um">
+  <button class="icon-btn x" data-close-drawer>✕</button>
+  <h2 id="rvw-listname">Revisar</h2>
+  <div class="review-body" id="rvw-body"></div>
+</aside>
+
+<aside class="drawer drawer-share" aria-label="Cartão para compartilhar">
+  <button class="icon-btn x" data-close-drawer>✕</button>
+  <h2>Cartão para compartilhar</h2>
+  <div class="share-card" id="share-card"></div>
+  <button class="btn primary" id="share-copy" style="width:auto">Copiar texto</button>
+  <p class="note" style="margin-top:8px">Print da tela: <kbd>⌘ shift 4</kbd></p>
+  <p class="note" style="margin-top:14px">Os @ das outras pessoas não entram no cartão, de propósito.</p>
+</aside>
+
+<script type="module" src="/static/app.js"></script>
+</body>
+</html>

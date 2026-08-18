@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    width: 290px; margin: 0; padding: 16px;
+    font: 13.5px/1.45 -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: #161a21; color: #e7ebf2;
+  }
+  h1 { font-size: 14px; margin: 0 0 3px; }
+  p { margin: 0 0 13px; color: #97a1b2; font-size: 12px; }
+  label { display: block; font-size: 11.5px; color: #97a1b2; margin-bottom: 4px; }
+  input {
+    width: 100%; box-sizing: border-box; background: #0d0f13; color: #e7ebf2;
+    border: 1px solid #262d38; border-radius: 7px; padding: 7px 9px; font-size: 13px;
+  }
+  button {
+    width: 100%; margin-top: 11px; background: #d6336c; color: #fff; border: 0;
+    border-radius: 8px; padding: 9px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #f06595; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  #msg { margin-top: 11px; font-size: 12px; min-height: 16px; color: #97a1b2; }
+  #msg.ok { color: #38b06f; }
+  #msg.err { color: #e05561; }
+</style>
+</head>
+<body>
+  <h1>ig-lists</h1>
+  <p>Manda a sessão do Instagram para o app que está rodando na sua máquina.</p>
+  <label for="port">Porta do ig-lists</label>
+  <input id="port" type="number" value="8765" min="1" max="65535">
+  <button id="send">Enviar sessão</button>
+  <div id="msg"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Dados coletados e exports — NUNCA versionar (contém suas listas do Instagram)
+data/
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+**/.DS_Store

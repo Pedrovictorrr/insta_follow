@@ -1,0 +1,38 @@
+ig-lists — quem não te segue de volta
+=====================================
+
+Este programa roda no SEU computador. Não manda seus dados para lugar nenhum.
+
+
+COMO ABRIR
+----------
+
+  No Mac:
+    Clique com o botão DIREITO no arquivo "Abrir no Mac.command"
+    → Abrir → Abrir.
+    (Só na primeira vez. Se der só dois cliques, o Mac bloqueia por
+     segurança e não abre — por isso o botão direito.)
+
+  No Windows:
+    Dois cliques em "Abrir no Windows.bat".
+    Se aparecer uma tela azul "O Windows protegeu o computador":
+    clique em "Mais informações" → "Executar assim mesmo".
+
+Vai abrir uma janela preta (é o motor do app — deixe aberta) e, logo
+depois, o app no seu navegador. Para desligar tudo, feche a janela preta.
+
+
+PRECISA TER
+-----------
+
+  Python 3 instalado. Se não tiver, os atalhos acima abrem a página de
+  download automaticamente. Instale e abra de novo.
+
+
+É SEGURO?
+---------
+
+  - Roda em 127.0.0.1, que quer dizer "esta máquina". Não há servidor nosso.
+  - Sua sessão do Instagram fica só na memória, enquanto o app está aberto.
+  - O programa só LÊ suas listas. Nunca segue, deixa de seguir nem publica.
+  - Dentro do app, o botão "Como isso é seguro?" explica tudo em detalhe.
