@@ -4,7 +4,8 @@
 set -euo pipefail
 cd "${0:A:h}/.."
 node web/teste-exportacao.mjs
+node --check web/coletor.js
 php -l web/api.php >/dev/null
 DEST=/home/forge/seguidores.cwsystems.com.br/public
-rsync -az web/index.html web/app.js web/exportacao.js web/api.php static/style.css static/data.js do-droplet:$DEST/
+rsync -az web/index.html web/app.js web/exportacao.js web/coletor.js web/api.php static/style.css static/data.js do-droplet:$DEST/
 ssh do-droplet "chown -R forge:forge $DEST && curl -fsS -o /dev/null -w 'site %{http_code}\n' https://seguidores.cwsystems.com.br/"

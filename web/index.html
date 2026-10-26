@@ -15,8 +15,8 @@
   } catch (e) {}
 </script>
 <style>
-  .view-ler { display: none; }
-  [data-view="ler"] .view-ler { display: block; }
+  .view-ler, .view-coleta { display: none; }
+  [data-view="ler"] .view-ler, [data-view="coleta"] .view-coleta { display: block; }
   [data-drawer="pix"] .drawer-pix { transform: translateX(0); }
   .drop { border: 2px dashed var(--line); border-radius: 14px; padding: 28px 16px; text-align: center;
     cursor: pointer; transition: border-color .15s, background .15s; margin: 18px 0 8px; }
@@ -51,20 +51,33 @@
     <div class="narrow">
       <div class="card">
         <h1 class="title">Quem não te segue de volta</h1>
-        <p class="lead">Você pede ao Instagram uma cópia da sua lista de seguidores, solta o
-          arquivo aqui e vê na hora quem você segue e não te segue de volta.</p>
+        <p class="lead">Lê a sua lista de seguidores e de quem você segue direto do Instagram
+          aberto no seu navegador, cruza as duas e mostra quem não te segue de volta.</p>
 
         <ul class="trust">
-          <li>{{check}}<div><b>Sem senha e sem login.</b><span>Você nunca entra com a sua
-            conta aqui. O arquivo é o próprio Instagram que te entrega.</span></div></li>
-          <li>{{check}}<div><b>O arquivo não sai do seu computador.</b><span>A leitura acontece
-            dentro do seu navegador. Nenhuma lista é enviada pra servidor nenhum.</span></div></li>
-          <li>{{check}}<div><b>Lista completa e exata.</b><span>Vem direto da exportação
-            oficial, sem estimativa e sem risco de bloqueio na sua conta.</span></div></li>
+          <li>{{check}}<div><b>Sem senha.</b><span>Usa o Instagram que já está aberto no seu
+            navegador. Você não digita nada e seu acesso não vem pra cá.</span></div></li>
+          <li>{{check}}<div><b>Tudo acontece no seu navegador.</b><span>A leitura roda na sua
+            internet, e as listas não são gravadas em servidor nenhum.</span></div></li>
+          <li>{{check}}<div><b>No ritmo de uma pessoa.</b><span>Lê devagar e pausa sozinho
+            se o Instagram pedir, pra não arriscar a sua conta.</span></div></li>
         </ul>
 
-        <details open>
-          <summary><b>1 · Pedir o arquivo ao Instagram</b> <span class="note">(uma vez, leva 2 minutos)</span></summary>
+        <div style="margin-top:18px"><b>No computador, em 2 cliques</b></div>
+        <ol class="steps">
+          <li><div>Arraste este botão para a barra de favoritos do navegador
+            <span class="note">(não aparece? <kbd>⌘ Shift B</kbd> no Mac, <kbd>Ctrl Shift B</kbd> no Windows)</span>:
+            <div style="margin:10px 0 4px"><a class="btn primary" id="favorito" href="#" style="width:auto;display:inline-block;cursor:grab"
+              title="Arraste para a barra de favoritos">📥 Quem não me segue</a></div></div></li>
+          <li><div>Abra o <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">instagram.com</a>,
+            logado na sua conta, e clique no favorito.</div></li>
+          <li><div>A leitura usa o login que já está aberto no seu navegador. Seus dados de acesso
+            não saem dele. Quando termina, o resultado abre aqui.</div></li>
+        </ol>
+
+        <details>
+          <summary><b>Sem computador, ou o automático deu bloqueio?</b> <span class="note">Use o arquivo oficial do Instagram</span></summary>
+          <p class="note" style="margin:8px 0 0"><b>1 · Pedir o arquivo ao Instagram</b> (uma vez, leva 2 minutos)</p>
           <ol class="steps">
             <li><div>No app do Instagram: <b>Perfil → ☰ → Central de Contas</b>.</div></li>
             <li><div><b>Suas informações e permissões → Exportar suas informações → Criar exportação</b>.</div></li>
@@ -76,7 +89,6 @@
               Baixe o <code>.zip</code> pelo link do e-mail.</div></li>
           </ol>
           <p class="note">Os nomes dos menus mudam um pouco entre versões do app; o caminho é sempre pela Central de Contas.</p>
-        </details>
 
         <div style="margin-top:18px"><b>2 · Soltar o arquivo aqui</b></div>
         <label class="drop" id="drop">
@@ -85,6 +97,23 @@
           <input type="file" id="arquivo" accept=".zip,.json,.html" multiple hidden>
         </label>
         <p class="note center" id="drop-msg"></p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ COLETANDO (favorito) ═══════════════ -->
+  <section class="view view-coleta">
+    <div class="narrow">
+      <div class="card center">
+        <div class="eyebrow">Lendo pela aba do Instagram</div>
+        <h2 class="title" id="co-titulo">Esperando o Instagram…</h2>
+        <div class="row" style="justify-content:space-around; margin:18px 0">
+          <div><div class="big-num" style="font-size:40px" id="co-ers">0</div><div class="note">seguidores</div></div>
+          <div><div class="big-num" style="font-size:40px" id="co-ing">0</div><div class="note">seguindo</div></div>
+        </div>
+        <p class="banner" id="co-nota">Deixe a aba do Instagram aberta até terminar. Dá pra usar o computador normalmente.</p>
+        <p class="note" id="co-dica">Clicou no favorito e nada aconteceu? Confira se a aba do instagram.com está logada.</p>
       </div>
     </div>
   </section>
@@ -104,7 +133,7 @@
     <div class="narrow wide">
       <div class="reveal-top">
         <span id="rv-fresh"></span>
-        <button class="btn sm" id="rv-outro">Outro arquivo</button>
+        <button class="btn sm" id="rv-outro">Começar de novo</button>
       </div>
 
       <div class="hero" id="rv-hero"></div>

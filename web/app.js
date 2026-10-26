@@ -126,6 +126,53 @@ function mostrarQr(p) {
   }, 4000);
 }
 
+/* ─────────────────────────────── favorito (coleta na aba do Instagram) ─ */
+// o link "javascript:" é montado do coletor.js publicado, assim só existe uma fonte
+fetch("coletor.js").then((r) => r.text()).then((codigo) => {
+  $("#favorito").href = "javascript:" + encodeURIComponent(codigo);
+}).catch(() => {});
+$("#favorito").onclick = (e) => {
+  e.preventDefault();
+  alert("Arraste este botão para a barra de favoritos. Depois abra o instagram.com e clique nele lá.");
+};
+
+const ORIGENS_IG = ["https://www.instagram.com", "https://instagram.com"];
+const USER_OK = /^[A-Za-z0-9._]{1,30}$/;
+// validação na fronteira: o postMessage chega de outra origem, aceita só o formato esperado
+const limpa = (lista) => (Array.isArray(lista) ? lista : [])
+  .filter((u) => u && USER_OK.test(u.username))
+  .map((u) => ({ pk: String(u.pk || u.username).slice(0, 30), username: u.username.toLowerCase(),
+    full_name: String(u.full_name || "").slice(0, 100), is_private: !!u.is_private, is_verified: !!u.is_verified }));
+
+window.addEventListener("message", (e) => {
+  if (!ORIGENS_IG.includes(e.origin) || !e.data || typeof e.data !== "object") return;
+  const m = e.data;
+  if (m.tipo === "progresso") {
+    if (body.dataset.view !== "coleta") setView("coleta");
+    $("#co-titulo").textContent = m.kind === "followers" ? "Lendo quem te segue…" : "Lendo quem você segue…";
+    $("#co-ers").textContent = D.nf(m.followers);
+    $("#co-ing").textContent = D.nf(m.following);
+    $("#co-nota").textContent = "Deixe a aba do Instagram aberta até terminar. Dá pra usar o computador normalmente.";
+  } else if (m.tipo === "pausa") {
+    if (body.dataset.view !== "coleta") setView("coleta");
+    $("#co-nota").textContent = `O Instagram pediu uma pausa. Continua sozinho em ${m.segundos}s.`;
+  } else if (m.tipo === "erro") {
+    falha("O Instagram não deixou continuar agora", String(m.mensagem || "") +
+      " Enquanto isso, dá pra usar o arquivo oficial do Instagram (a opção de baixo na tela inicial).");
+  } else if (m.tipo === "fim") {
+    e.source?.postMessage({ tipo: "recebido" }, e.origin);
+    if (dados?.recebido) return;   // reenvios do coletor
+    const followers = limpa(m.followers), following = limpa(m.following);
+    if (!followers.length && !following.length) return falha("As listas vieram vazias",
+      "Confira se a aba do Instagram está logada na sua conta e tente de novo.");
+    dados = { dono: USER_OK.test(m.dono || "") ? m.dono.toLowerCase() : null, followers, following, recebido: true };
+    crossed = D.cruzar(followers, following);
+    showReveal();
+  }
+});
+if (location.hash === "#coleta") setView("coleta");
+window.addEventListener("hashchange", () => { if (location.hash === "#coleta" && !dados) setView("coleta"); });
+
 /* ─────────────────────────────── upload ──────────────────────────────── */
 const drop = $("#drop");
 $("#arquivo").onchange = (e) => carregar(e.target.files);
@@ -158,7 +205,7 @@ function falha(titulo, causa) {
   setView("fail");
 }
 $("#fail-back").onclick = () => setView("welcome");
-$("#rv-outro").onclick = () => setView("welcome");
+$("#rv-outro").onclick = () => { dados = null; crossed = null; history.replaceState(null, "", location.pathname); setView("welcome"); };
 
 /* ─────────────────────────────── revelação ───────────────────────────── */
 const count = (name) => (crossed ? crossed[name].length : 0);
@@ -181,6 +228,11 @@ function showReveal() {
     el("div", { class: "hero-num-sub", text: nfb ? "não seguem você de volta"
       : "— todo mundo que você segue te segue de volta. Sério." }),
   );
+  const verif = crossed.not_following_back.filter((u) => u.is_verified).length;
+  if (verif) hero.append(el("div", { class: "subtract" }, [
+    row("− verificados (clubes, artistas, marcas)", verif),
+    Object.assign(row("= contas comuns", nfb - verif), { className: "r total" }),
+  ]));
 
   // prévia borrada + botão de pagar, até liberar
   const gate = $("#rv-gate"); gate.innerHTML = "";
@@ -203,6 +255,10 @@ function showReveal() {
     el("p", { class: "desc", text: "Te seguem e você não segue de volta. Em conta pública, isso é o normal." }),
     el("p", { class: "breakdown", text: `${D.nf(count("followers"))} seguidores · ${D.nf(mutual)} mútuos` }),
   );
+}
+
+function row(k, v) {
+  return el("div", { class: "r" }, [el("span", { class: "k", text: k }), el("span", { text: D.nf(v) })]);
 }
 
 /* ─────────────────────────────── placar + lista ──────────────────────── */
@@ -266,8 +322,13 @@ function renderPeople() {
 function personRow(u) {
   const row = el("div", { class: "person" });
   row.append(monoEl(u, 32));
-  row.append(el("div", { class: "id" }, [el("div", { class: "at", text: "@" + u.username })]));
-  row.append(el("span", { class: "when", text: dataBR(quando(u)) }));
+  row.append(el("div", { class: "id" }, [el("div", { class: "at", text: "@" + u.username }),
+    u.full_name && el("div", { class: "nm", text: u.full_name })]));
+  const selos = el("div", { class: "row", style: "gap:4px" });
+  if (u.is_verified) selos.append(el("span", { class: "badge v", text: "verificado" }));
+  if (u.is_private) selos.append(el("span", { class: "badge", text: "privado" }));
+  row.append(selos);
+  if (u.quando) row.append(el("span", { class: "when", text: dataBR(u.quando) }));
   row.append(el("div", { class: "acts" }, [el("a", { class: "iconlink", href: `https://www.instagram.com/${u.username}/`,
     target: "_blank", rel: "noopener noreferrer", title: "abrir no Instagram", text: "↗" })]));
   return row;
