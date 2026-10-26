@@ -141,8 +141,16 @@ def fetch_profile(cookie, username=None):
     if not uid:
         raise IGError(0, "Cookie sem ds_user_id — copie o header Cookie inteiro.")
     username = (username or "").strip().lstrip("@") or detect_username(cookie)
-    data = api_get("/api/v1/users/web_profile_info/", cookie,
-                   {"username": username})
+    try:
+        data = api_get("/api/v1/users/web_profile_info/", cookie,
+                       {"username": username})
+    except IGError as e:
+        # o Instagram às vezes dá 429 só nesse endpoint enquanto as listas
+        # respondem — segue sem as contagens (só perde ETA e nota de precisão)
+        if e.code != 429:
+            raise
+        return {"user_id": uid, "username": username, "full_name": "",
+                "followers": None, "following": None}
     u = (data.get("data") or {}).get("user")
     if not u:
         raise IGError(0, f"Perfil @{username} não encontrado.")
